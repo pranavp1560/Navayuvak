@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kharch (Expenses)</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/expense.css') }}">
+</head>
+<body>
+  <nav>
+    <div class="logo">🏠 18 HOUSE</div>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/vargani">Vargani</a></li>
+      <li><a href="/vargani_list">Vargani List</a></li>
+      <li><a href="/dashboard">Dashboard</a></li>
+      <li><a href="/logout">Logout</a></li>
+    </ul>
+  </nav>
+
+  <main class="main-content">
+    <div class="container">
+      <h2>💸 खर्च नोंदणी (Expense Entry)</h2>
+      <form method="POST">
+        <input type="text" name="title" placeholder="Expense Title" required>
+        <input type="number" name="amount" placeholder="Amount ₹" required>
+        <textarea name="description" placeholder="Description (optional)"></textarea>
+        <button type="submit">Add Expense</button>
+      </form>
+
+      <div class="summary">
+        <p>💰 एकूण वर्गणी: ₹{{ total_vargani }}</p>
+        <p>🧾 एकूण खर्च: ₹{{ total_expense }}</p>
+        <p>📉 शिल्लक रक्कम: ₹{{ remaining }}</p>
+      </div>
+
+      <h3>📃 खर्च यादी (Expense List)</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Sr.No</th>
+              <th>Title</th>
+              <th>Amount</th>
+              <th>Description</th>
+              <th>Date</th>
+              <th>Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for e in expenses %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ e.title }}</td>
+              <td>₹{{ e.amount }}</td>
+              <td>{{ e.description }}</td>
+              <td>
+                {% if e.created_at %}
+                  {{ e.created_at.strftime('%Y-%m-%d') }}
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+              <td>
+                <a href="/delete_expense/{{ e._id }}" onclick="return confirm('Are you sure you want to delete this expense?')">🗑️</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

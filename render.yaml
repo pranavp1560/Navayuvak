@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: ganesh-mandal
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app"
+    envVars:
+      - key: FAST2SMS_API_KEY
+        value: J87PtlregKofFyQRVuGOUjqW3CSZb4LimpxEv9wn6cIDNAHX1zNEdfug1DvXmZaRYr9WIhikOjtJMSAK
+      - key: FLASK_ENV
+        value: production
