@@ -28,11 +28,12 @@
     <div class="gallery-grid">
       {% for img in gallery %}
         <div class="card">
-          <img src="{{ url_for('static', filename='uploads/gallery/' ~ img.filename) }}" alt="Gallery Image">
-          <p class="caption">{{ img.caption }}</p>
-          <a href="/delete_image/{{ img._id }}" class="delete-btn" onclick="return confirm('Are you sure you want to delete this image?')">🗑️ Delete</a>
-        </div>
+        <img src="{{ img.url }}" alt="Gallery Image">
+        <p class="caption">{{ img.caption }}</p>
+        <a href="/delete_image/{{ img._id }}" class="delete-btn" onclick="return confirm('Are you sure you want to delete this image?')">🗑️ Delete</a>
+    </div>
       {% endfor %}
+
     </div>
   </div>
 </body>
