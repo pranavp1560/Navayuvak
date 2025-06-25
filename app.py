@@ -1,5 +1,3 @@
-
-
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from pymongo import MongoClient
 from werkzeug.utils import secure_filename
@@ -9,18 +7,24 @@ import os
 import requests
 from datetime import datetime
 from dotenv import load_dotenv
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = 'ganesh_secret'
-app.config['UPLOAD_FOLDER'] = 'static/uploads/gallery/'
-app.config['EVENT_UPLOAD_FOLDER'] = 'static/uploads/events/'
+
+cloudinary.config(
+  cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
+  api_key=os.getenv('CLOUDINARY_API_KEY'),
+  api_secret=os.getenv('CLOUDINARY_API_SECRET')
+)
 
 # MongoDB setup
 client = MongoClient(os.getenv("MONGO_URI"))
 db = client["ganesh_mandal"]
 expenses_collection = db["expenses"]
-
 
 # ========== DECORATOR ==========
 def login_required(f):
@@ -68,22 +72,29 @@ def dashboard():
 def manage_events():
     if request.method == 'POST':
         image = request.files['image']
-        filename = secure_filename(image.filename)
-        image.save(os.path.join(app.config['EVENT_UPLOAD_FOLDER'], filename))
+        upload_result = cloudinary.uploader.upload(image)
+        image_url = upload_result['secure_url']
+        public_id = upload_result['public_id']
+
         db.events.insert_one({
             'title': request.form['title'],
             'description': request.form['description'],
             'event_date': request.form['event_date'],
-            'image_filename': filename
+            'image_url': image_url,
+            'public_id': public_id
         })
+
     events = list(db.events.find().sort("event_date", -1))
     return render_template('events_manage.html', events=events)
 
 @app.route('/delete_event/<string:event_id>')
 @login_required
 def delete_event(event_id):
-    from bson import ObjectId
-    db.events.delete_one({'_id': ObjectId(event_id)})
+    event = db.events.find_one({'_id': ObjectId(event_id)})
+    if event:
+        if 'public_id' in event:
+            cloudinary.uploader.destroy(event['public_id'])
+        db.events.delete_one({'_id': ObjectId(event_id)})
     return redirect('/events')
 
 @app.route('/view_events')
@@ -96,12 +107,16 @@ def view_events():
 def manage_gallery():
     if request.method == 'POST':
         file = request.files['image']
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        upload_result = cloudinary.uploader.upload(file)
+        image_url = upload_result['secure_url']
+        public_id = upload_result['public_id']
+
         db.gallery.insert_one({
-            'filename': filename,
-            'caption': request.form['caption']
+            'caption': request.form['caption'],
+            'url': image_url,
+            'public_id': public_id
         })
+
     gallery = list(db.gallery.find().sort("_id", -1))
     return render_template('gallery_manage.html', gallery=gallery)
 
@@ -113,10 +128,10 @@ def view_gallery():
 @app.route('/delete_image/<string:image_id>')
 @login_required
 def delete_image(image_id):
-    from bson import ObjectId
     image = db.gallery.find_one({'_id': ObjectId(image_id)})
     if image:
-        os.remove(os.path.join(app.config['UPLOAD_FOLDER'], image['filename']))
+        if 'public_id' in image:
+            cloudinary.uploader.destroy(image['public_id'])
         db.gallery.delete_one({'_id': ObjectId(image_id)})
     return redirect('/gallery')
 
@@ -125,39 +140,6 @@ def delete_image(image_id):
 def vargani_entry():
     return render_template('vargani.html')
 
-# @app.route('/submit_vargani', methods=['POST'])
-# @login_required
-# def submit_vargani():
-#     name = request.form['name']
-#     amount = int(request.form['amount'])
-#     contact = request.form['contact']
-
-#     db.vargani.insert_one({
-#         'name': name,
-#         'amount': amount,
-#         'contact': contact
-#     })
-
-#     try:
-#         url = "https://www.fast2sms.com/dev/bulkV2"
-#         payload = {
-#             "sender_id": "FSTSMS",
-#             "message": f"🙏 धन्यवाद {name}! आपली ₹{amount} वर्गणी प्राप्त झाली आहे. नवयुवक तरुण गणेश मंडळ, वाठार आपले आभारी आहे.",
-#             "language": "english",
-#             "route": "v3",
-#             "numbers": contact
-#         }
-#         headers = {
-#             'authorization': os.getenv("FAST2SMS_API_KEY"),
-#             'Content-Type': "application/json"
-#         }
-#         response = requests.post(url, json=payload, headers=headers)
-#         print(response.json())
-#     except Exception as e:
-#         print("SMS sending failed:", e)
-
-#     return redirect('/vargani_list')
-
 @app.route('/submit_vargani', methods=['POST'])
 @login_required
 def submit_vargani():
@@ -165,26 +147,22 @@ def submit_vargani():
     amount = int(request.form['amount'])
     contact = request.form['contact']
 
-    # Insert into MongoDB
     db.vargani.insert_one({
         'name': name,
         'amount': amount,
         'contact': contact
     })
 
-    # Marathi SMS message
     sms_message = f"🙏 धन्यवाद {name}! आपली ₹{amount} वर्गणी प्राप्त झाली आहे. नवयुवक तरुण गणेश मंडळ, वाठार आपले आभारी आहे."
 
-    # Fast2SMS API details
     url = "https://www.fast2sms.com/dev/bulkV2"
     payload = {
-    "sender_id": "FSTSMS",
-    "message": f"🙏 धन्यवाद {name}! आपली ₹{amount} वर्गणी प्राप्त झाली आहे. नवयुवक तरुण गणेश मंडळ, वाठार आपले आभारी आहे.",
-    "language": "unicode",
-    "route": "q",
-    "numbers": contact
+        "sender_id": "FSTSMS",
+        "message": sms_message,
+        "language": "unicode",
+        "route": "q",
+        "numbers": contact
     }
-
     headers = {
         "authorization": os.getenv("FAST2SMS_API_KEY"),
         "Content-Type": "application/json"
@@ -192,14 +170,11 @@ def submit_vargani():
 
     try:
         response = requests.post(url, json=payload, headers=headers)
-
-        # Check if response is valid JSON
         try:
             data = response.json()
             print("✅ SMS sent successfully:", data)
         except ValueError:
             print("❌ SMS response not JSON. Text was:", response.text)
-
     except Exception as e:
         print("🔥 SMS sending failed:", e)
 
@@ -226,7 +201,6 @@ def edit_vargani(id):
             }}
         )
         return redirect('/vargani_list')
-    
     vargani = db.vargani.find_one({'_id': ObjectId(id)})
     return render_template('edit_vargani.html', vargani=vargani)
 
@@ -272,9 +246,6 @@ def manage_expense():
 def delete_expense(id):
     db.expense.delete_one({"_id": ObjectId(id)})
     return redirect('/expense')
-
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
