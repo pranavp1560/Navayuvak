@@ -101,11 +101,12 @@
   <div class="gallery">
     {% for img in gallery %}
       <div class="gallery-card">
-        <img src="{{ url_for('static', filename='uploads/gallery/' ~ img.filename) }}" alt="Gallery Image">
+        <img src="{{ img.url }}" alt="Gallery Image">
         <p>{{ img.caption }}</p>
       </div>
     {% endfor %}
   </div>
+  
 
   <footer>
     © 2025 Ganeshotsav Mandal. All Rights Reserved.
