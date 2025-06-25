@@ -48,7 +48,7 @@
     {% for event in events %}
       <div class="event-card">
         <div class="image-wrapper">
-          <img src="{{ url_for('static', filename='uploads/events/' ~ event['image_filename']) }}" alt="Event Image">
+           <img src="{{ event.image_url }}" alt="Event Image">
         </div>
         <h3>{{ event['title'] }}</h3>
         <p>{{ event['description'] }}</p>
@@ -62,8 +62,7 @@
   <div class="gallery">
     {% for img in gallery[:6] %}
       <div class="gallery-card">
-        <img src="{{ url_for('static', filename='uploads/gallery/' ~ img['filename']) }}" alt="Gallery Image">
-        <p>{{ img['caption'] }}</p>
+        <img src="{{ img.url }}" alt="Gallery Image">        <p>{{ img['caption'] }}</p>
       </div>
     {% endfor %}
   </div>
