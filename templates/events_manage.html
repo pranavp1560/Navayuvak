@@ -29,14 +29,15 @@
 
     <h3>All Events</h3>
     <div class="events-grid">
-      {% for event in events %}
-        <div class="event-card">
-          <img src="{{ url_for('static', filename='uploads/events/' + event.image_filename) }}" alt="Event Image">
-          <h3>{{ event.title }}</h3>
-          <p>{{ event.description }} <br><small>📅 {{ event.event_date }}</small></p>
-          <a href="/delete_event/{{ event._id }}">🗑️</a>
-        </div>
-      {% endfor %}
+    {% for event in events %}
+      <div class="event-card">
+      <img src="{{ event.image_url }}" alt="Event Image">
+      <h3>{{ event.title }}</h3>
+      <p>{{ event.description }} <br><small>📅 {{ event.event_date }}</small></p>
+      <a href="/delete_event/{{ event._id }}">🗑️</a>
+    </div>
+    {% endfor %}
+
     </div>
   </div>
 </body>
