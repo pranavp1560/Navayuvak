@@ -153,7 +153,7 @@ def submit_vargani():
         'contact': contact
     })
 
-    sms_message = f"🙏 धन्यवाद {name}! आपली ₹{amount} वर्गणी प्राप्त झाली आहे. नवयुवक तरुण गणेश मंडळ, वाठार आपले आभारी आहे."
+    sms_message = f" धन्यवाद आपली ₹{amount} वर्गणी प्राप्त झाली आहे. -18 House"
 
     url = "https://www.fast2sms.com/dev/bulkV2"
     payload = {
