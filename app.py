@@ -10,6 +10,9 @@ from dotenv import load_dotenv
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
+from io import BytesIO
+import pandas as pd
+import openpyxl
 load_dotenv()
 
 app = Flask(__name__)
@@ -215,6 +218,22 @@ def delete_vargani(id):
 def delete_all_vargani():
     db.vargani.delete_many({})
     return redirect('/vargani_list')
+
+@app.route('/download_vargani_excel')
+@login_required
+def download_vargani_excel():
+    data = list(db.vargani.find())
+    for item in data:
+        item.pop('_id', None)  # Remove MongoDB ID
+    df = pd.DataFrame(data)
+
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Vargani_List')
+
+    output.seek(0)
+    return send_file(output, download_name='vargani_list.xlsx', as_attachment=True)
+  
 
 @app.route('/expense', methods=['GET', 'POST'])
 @login_required
