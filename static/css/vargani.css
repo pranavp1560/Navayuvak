@@ -264,6 +264,14 @@ body {
       text-align: center;
     }
   }
+ .btn-download {
+    background-color: #9575cd;
+    color: white;
+  }
+  .btn-download:hover {
+    background-color: #5e35b1;
+  }
+  
   
   
   
