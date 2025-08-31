@@ -69,21 +69,55 @@
       text-align: center;
       margin: 30px 0;
     }
-  </style>
-</head>
-<body>
-  <!-- Navbar -->
-  <nav>
-    <div class="logo">🏠 18 HOUSE</div>
-    <ul class="nav-links">
-      <li><a href="/">Home</a></li>
-      <li><a href="/about">About</a></li>
-      <li><a href="/view_events">Events</a></li>
-      <li><a href="/galleryview">Gallery</a></li>
-      <li><a href="/dashboard">Dashboard</a></li>
-      <li><a href="/logout">Logout</a></li>
-    </ul>
+    .background-blur {
+  background: url("/static/images/img3.jpeg") no-repeat center center fixed;
+  background-size: cover;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  filter: blur(5px);
+  opacity: 0.6;
+}
+.color-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(142, 39, 7, 0.4); 
+  z-index: -1;
+}
+
+ nav{
+      padding: 0px 25px;
+    }
+  .logo img {
+    height: 70px;
+    width: auto;
+  }
+    </style>
+  </head>
+  <body>
+    <div class="background-blur">
+      <div class="color-overlay"></div>
+    </div>
+    <nav>
+      <div class="logo">
+        <img src="/static/images/logo.png" alt="Logo" />
+      </div>
+    <div class="hamburger" onclick="toggleMenu()">☰</div>
+    <div class="nav-links" id="navLinks">
+      <a href="/">Home</a>
+      <a href="/vargani">Vargani</a>
+      <a href="/expense">Expense</a>
+      <a href="/galleryview">Gallery</a>
+      <a href="/dashboard">Dashboard</a>
+    </div>
   </nav>
+
 
   <div class="table-responsive">
     <!-- Total Amount -->
@@ -101,13 +135,23 @@
     <!-- Main Table -->
     <main class="main-content">
       <div class="container">
-        <h2>📋 Vargani Jama Yadi</h2>
+        <h2>वर्गणी जमा यादी</h2>
+        <form method="get" action="/vargani_list" style="text-align: center; margin-bottom: 20px;">
+          <label for="year">वर्ष निवडा (Select Year): </label>
+          <select name="year" id="year" onchange="this.form.submit()" style="padding: 8px; border-radius: 8px;">
+            {% for y in years %}
+              <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
+            {% endfor %}
+          </select>
+        </form>
+        
         <div class="table-wrapper">
           <table id="varganiTable">
             <thead>
               <tr>
                 <th>क्रमांक (Sr.No)</th>
-                <th>नाव (Name)</th>
+                <th>नाव (Name_english)</th>
+                <th>नाव (Name_marathi)</th>
                 <th>वर्गणी (Amount ₹)</th>
                 <th>संपर्क (Contact)</th>
                 <th>कृती (Action)</th>
@@ -117,6 +161,7 @@
               {% for v in vargani %}
               <tr>
                 <td>{{ loop.index }}</td>
+                <td>{{ v.name_english }}</td>
                 <td>{{ v.name }}</td>
                 <td>₹{{ v.amount }}</td>
                 <td>{{ v.contact }}</td>
@@ -137,6 +182,7 @@
       <a href="/vargani" class="btn btn-add">➕ Add New Vargani</a>
       <a href="/delete_all_vargani" class="btn btn-delete-all" onclick="return confirm('Delete ALL Vargani entries?');">🗑️ Delete All</a>
       <a href="/download_vargani_excel" class="btn btn-download">📥 Download Excel</a>
+
     </div>
   </div>
 
@@ -158,5 +204,12 @@
       });
     }
   </script>
+  <script>
+    function toggleMenu() {
+      const links = document.getElementById('navLinks');
+      links.classList.toggle('active');
+    }
+  </script>
+  
 </body>
 </html>
