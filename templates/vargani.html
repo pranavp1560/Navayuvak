@@ -1,28 +1,42 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Vargani Entry</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/vargani.css') }}">
-</head>
-<body>
-  <!-- Navbar -->
-  <nav>
-    <div class="logo">🏠 18 HOUSE</div>
-    <ul class="nav-links">
-      <li><a href="/">Home</a></li>
-      <li><a href="/about">About</a></li>
-      <li><a href="/view_events">Events</a></li>
-      <li><a href="/galleryview">Gallery</a></li>
-      <li><a href="/dashboard">Dashboard</a></li>
-      <li><a href="/logout">Logout</a></li>
-    </ul>
+  <style>
+    nav{
+      padding: 0px 25px;
+    }
+  .logo img {
+    height: 70px;
+    width: auto;
+  }
+      </style>
+    </head>
+    <body>
+      <div class="background-blur">
+        <div class="color-overlay"></div>
+      </div>
+      <nav>
+        <div class="logo">
+          <img src="/static/images/logo.png" alt="Logo" />
+        </div>
+    <div class="hamburger" onclick="toggleMenu()">☰</div>
+    <div class="nav-links" id="navLinks">
+      <a href="/">Home</a>
+      <a href="/about">About</a>
+      <a href="/expense">Expense</a>
+      <a href="/galleryview">Gallery</a>
+      <a href="/dashboard">Dashboard</a>
+    </div>
   </nav>
+
 
   <main class="main-content">
     <div class="container">
-      <h2>🙏 Vargani Nond Form</h2>
+      <h2>वर्गणी नोंद फॉर्म</h2>
       <form action="/submit_vargani" method="post">
         <input type="text" name="name" placeholder="Nav (Name)" required>
         <input type="number" name="amount" placeholder="Vargani Rakkam (Amount)" required>
@@ -31,5 +45,136 @@
       </form>
     </div>
   </main>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class="flashes">
+      {% for category, message in messages %}
+        <li class="flash {{ category }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+  <script>
+    function toggleMenu() {
+      const links = document.getElementById('navLinks');
+      links.classList.toggle('active');
+    }
+  </script>
+  
+</body>
+</html> -->
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vargani Entry</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/vargani.css') }}">
+  <style>
+    nav{
+      padding: 0px 25px;
+    }
+  .logo img {
+    height: 70px;
+    width: auto;
+  }
+      </style>
+    </head>
+    <body>
+      <div class="background-blur">
+        <div class="color-overlay"></div>
+      </div>
+      <nav>
+        <div class="logo">
+          <img src="/static/images/logo.png" alt="Logo" />
+        </div>
+    <div class="hamburger" onclick="toggleMenu()">☰</div>
+    <div class="nav-links" id="navLinks">
+      <a href="/">Home</a>
+      <a href="/about">About</a>
+      <a href="/expense">Expense</a>
+      <a href="/galleryview">Gallery</a>
+      <a href="/dashboard">Dashboard</a>
+    </div>
+  </nav>
+
+
+  <main class="main-content">
+    <div class="container">
+      <h2>वर्गणी नोंद फॉर्म</h2>
+      <form id="varganiForm" action="/submit_vargani" method="post">
+        <input type="text" id="name" name="name" placeholder="Nav (Name in English)" required>
+        <!-- readonly preview field -->
+        <input type="text" id="name_preview" placeholder="नाव (Marathi preview)" readonly>
+        <!-- hidden field to send Marathi string (optional) -->
+        <input type="hidden" id="name_marathi" name="name_marathi">
+        <input type="number" name="amount" placeholder="Vargani Rakkam (Amount)" required>
+        <input type="text" name="contact" placeholder="Contact Number" required>
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  </main>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class="flashes">
+      {% for category, message in messages %}
+        <li class="flash {{ category }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+  <script>
+    function toggleMenu() {
+      const links = document.getElementById('navLinks');
+      links.classList.toggle('active');
+    }
+  </script>
+  
+<script>
+  const nameInput = document.getElementById('name');
+  const preview = document.getElementById('name_preview');
+  const hiddenMarathi = document.getElementById('name_marathi');
+  const form = document.getElementById('varganiForm');
+
+  let lastTimeout = null;
+  nameInput.addEventListener('input', function(e) {
+    const text = e.target.value;
+    // Debounce calls
+    if (lastTimeout) clearTimeout(lastTimeout);
+    lastTimeout = setTimeout(() => {
+      fetch('/_transliterate', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({text})
+      }).then(r => r.json()).then(j => {
+        preview.value = j.marathi || '';
+        hiddenMarathi.value = j.marathi || '';
+      }).catch(err => {
+        console.error('Translit error', err);
+        preview.value = '';
+        hiddenMarathi.value = '';
+      });
+    }, 250);
+  });
+
+  // ensure hidden field is populated before submit
+  form.addEventListener('submit', function(e) {
+    if (!hiddenMarathi.value) {
+      // if JS translit failed or is empty, you can optionally prevent submit and show message
+      // or allow submit and server will transliterate as fallback.
+      // e.g. allow submit so server translit catches it:
+      return true;
+    }
+  });
+</script>
+ 
+  
+  
 </body>
 </html>
