@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Event Registrations</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <style>
+    /* Navbar */
+    nav {
+      background-color: #ff6600;
+      color: white;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    nav .logo img {
+      height: 45px;
+    }
+    nav .hamburger {
+      display: none;
+      font-size: 28px;
+      cursor: pointer;
+    }
+    nav .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+    nav .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+    nav .nav-links a:hover {
+      color: #ffe0cc;
+    }
+    /* Table */
+    table th {
+      background-color: #ff6600 !important;
+      color: white;
+      text-align: center;
+    }
+    table td {
+      vertical-align: middle;
+      text-align: center;
+    }
+    .btn-delete {
+      background-color: #cc0000;
+      color: white;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .btn-delete:hover {
+      background-color: #990000;
+    }
+    /* Responsive nav */
+    @media (max-width: 768px) {
+      nav .hamburger {
+        display: block;
+      }
+      nav .nav-links {
+        display: none;
+        flex-direction: column;
+        background: #ff6600;
+        width: 100%;
+        margin-top: 10px;
+        padding: 10px 0;
+      }
+      nav .nav-links.active {
+        display: flex;
+      }
+      nav .nav-links a {
+        padding: 10px;
+        text-align: center;
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="background-blur">
+    <div class="color-overlay"></div>
+  </div>
+
+  <!-- Navbar -->
+  <nav>
+    <div class="logo">
+      <img src="/static/images/logo.png" alt="Logo">
+    </div>
+    <div class="hamburger" onclick="toggleMenu()">☰</div>
+    <div class="nav-links" id="navLinks">
+      <a href="/">Home</a>
+      <a href="/vargani">Vargani</a>
+      <a href="/expense">Expense</a>
+      <a href="/galleryview">Gallery</a>
+      <a href="/dashboard">Dashboard</a>
+    </div>
+  </nav>
+
+  <!-- Main container -->
+  <div class="container mt-5">
+    <h2 class="mb-4 text-center">Registrations for {{ event.title }}</h2>
+
+    {% if registrations %}
+      <table class="table table-striped table-bordered shadow-sm">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Mobile</th>
+            {% if event.is_paid %}
+              <th>Payment ID</th>
+              <th>Payment Screenshot</th>
+            {% endif %}
+            <th>Registered At</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for reg in registrations %}
+          <tr>
+            <td>{{ reg.name }}</td>
+            <td>{{ reg.address }}</td>
+            <td>{{ reg.mobile }}</td>
+            {% if event.is_paid %}
+              <td>{{ reg.payment_id }}</td>
+              <td>
+                {% if reg.payment_ss %}
+                  <a href="{{ reg.payment_ss }}" target="_blank">View</a>
+                {% else %}
+                  N/A
+                {% endif %}
+              </td>
+            {% endif %}
+            <td>
+              {% if reg.created_at %}
+                {{ reg.created_at.strftime("%d-%m-%Y %H:%M") }}
+              {% else %}
+                Not Available
+              {% endif %}
+            </td>
+            <td>
+                <form action="{{ url_for('delete_registration', reg_id=reg._id, event_id=event._id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this registration?');">
+                        Delete
+                    </button>
+                </form>
+                
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="alert alert-warning text-center">
+        No registrations found for this event.
+      </div>
+    {% endif %}
+
+    <div class="text-center mt-4">
+      <a href="{{ url_for('select_event') }}" class="btn btn-secondary">⬅ Back to Event Selection</a>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function toggleMenu() {
+      const links = document.getElementById('navLinks');
+      links.classList.toggle('active');
+    }
+  </script>
+</body>
+</html>
