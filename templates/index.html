@@ -5,28 +5,51 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>18 House</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+
+
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
+  <style>
+      nav{
+      padding: 0px 25px;
+    }
+  .logo img {
+    height: 70px;
+    width: auto;
+  }
+      </style>
+    </head>
+    <body>
+      <div class="background-blur">
+        <div class="color-overlay"></div>
+      </div>
+      <nav>
+        <div class="logo">
+          <img src="/static/images/logo.png" alt="Logo" />
+        </div>
+  <div class="hamburger" onclick="toggleMenu()">☰</div>
+  <div class="nav-links" id="navLinks">
+    <a href="/">Home</a>
+    <a href="/about">About</a>
+    <a href="/view_events">Events</a>
+    <a href="/galleryview">Gallery</a>
+    {% if session.admin_logged_in %}
+    <a href="/dashboard">Dashboard</a>
+    {% else %}
+    <a href="/admin">Admin</a>
+    {% endif %}
 
-<body>
-
-  <!-- Navbar -->
-  <nav>
-    <h2 style="color: white;">18 HOUSE</h2>
-    <div>
-      <a href="/">Home</a>
-      <a href="/about">About</a>
-      <a href="/view_events">Events</a>
-      <a href="/galleryview">Gallery</a>
-      <a href="/admin">Admin</a>
-    </div>
-  </nav>
+  </div>
+</nav>
+<div class="main-content">
 
   <!-- Hero Heading -->
-  <h1>🙏 नवयुवक तरुण गणेश मंडळ, वाठार  🙏</h1>
+  <h1 style="font-family: 'Baloo 2', cursive;">नवयुवक तरुण गणेश मंडळ, वाठार</h1>
   <div class="container">
     <p>
-      नवयुवक तरुण गणेश मंडळ, वाठारची स्थापना १९८२ साली झाली असून, आपल्या परंपरा आणि संस्कृतीचे जतन करण्यासाठी तसेच गणेशोत्सवाच्या माध्यमातून सामाजिक एकात्मता वृद्धिंगत करण्यासाठी आम्ही कार्यरत आहोत.
+      नवयुवक तरुण गणेश मंडळ, वाठार या मंडळाची स्थापना १९८२ साली झाली असून, आपल्या परंपरा आणि संस्कृतीचे जतन करण्यासाठी तसेच गणेशोत्सवाच्या माध्यमातून सामाजिक एकात्मता वृद्धिंगत करण्यासाठी आम्ही कार्यरत आहोत.
     </p>
     <p>
       प्रत्येक वर्षी मंडळ विविध आध्यात्मिक, सामाजिक व पर्यावरणीय उपक्रम राबवते. यात पारंपरिक दिंडी, रक्तदान शिबीर, स्वच्छता मोहीम, वृक्षारोपण, शालेय उपक्रम आणि सांस्कृतिक कार्यक्रमांचा समावेश असतो. या उपक्रमांमधून समाजात भक्ती, एकोप्याची भावना आणि सामाजिक बांधिलकी निर्माण करण्याचा आमचा प्रयत्न असतो.
@@ -42,40 +65,154 @@
     </p>
   </div>
 
+
+ {% if show_aahaval %}
+<section class="aahaval">
+  <h2>💰 वर्गणी आणि खर्च आहवाल</h2>
+  <div class="summary-box">
+    <p><span class="dot green"></span> एकूण वर्गणी: ₹{{ total_vargani }}</p>
+    <p><span class="dot red"></span> एकूण खर्च: ₹{{ total_expense }}</p>
+    <p><span class="dot yellow"></span> शिल्लक: ₹{{ remaining }}</p>
+  </div>
+
+  <div class="list-box">
+    <h3>📄 वर्गणी यादी</h3>
+    <ul>
+      {% for v in vargani_data[:5] %}
+        <li>{{ v.name }} - ₹{{ v.amount }}</li>
+      {% endfor %}
+    </ul>
+    {% if vargani_data|length > 5 %}
+    <a href="/aahaval" class="btn-view-more">View More</a>
+    {% endif %}
+  </div>
+
+  <div class="list-box">
+    <h3>📜 खर्च यादी</h3>
+    <ul>
+      {% for e in expense_data[:5] %}
+        <li>{{ e.title }} - ₹{{ e.amount }}</li>
+      {% endfor %}
+    </ul>
+    {% if expense_data|length > 5 %}
+    <a href="/aahaval" class="btn-view-more">View More</a>
+    {% endif %}
+  </div>
+</section>
+{% endif %}
+
+
+
   <!-- Events Section -->
   <h2>📅 Mandal Events</h2>
-  <div class="events-grid">
+  <!-- <div class="events-grid">
     {% for event in events %}
       <div class="event-card">
         <div class="image-wrapper">
-           <img src="{{ event.image_url }}" alt="Event Image">
+          <img src="{{ event.image_url }}" alt="Event Image">
         </div>
         <h3>{{ event['title'] }}</h3>
         <p>{{ event['description'] }}</p>
         <small>📅 {{ event['event_date'] }}</small>
       </div>
     {% endfor %}
-  </div>
-
-  <!-- Gallery Preview -->
-  <h2>📸 Gallery Highlights</h2>
-  <div class="gallery">
-    {% for img in gallery[:6] %}
-      <div class="gallery-card">
-        <img src="{{ img.url }}" alt="Gallery Image">        <p>{{ img['caption'] }}</p>
+  </div> -->
+  <!-- <h2>📅 Mandal Events</h2> -->
+  <div class="events-grid">
+    {% for event in events %}
+      <div class="event-card">
+        <div class="image-wrapper">
+          <img src="{{ event.image_url }}" alt="Event Image">
+        </div>
+        <h3>{{ event.title }}</h3>
+        <p>{{ event.description }}</p>
+        <small>📅 {{ event.event_date }}</small>
+  
+        <!-- Registration Status -->
+        {% if event.registration_open %}
+          <p>Registration: <b style="color:green;">Open</b></p>
+  
+          <!-- Free / Paid -->
+          {% if event.is_paid %}
+            <p><b>Paid Event</b></p>
+            <!-- {% if event.qr_url %}
+              <img src="{{ event.qr_url }}" alt="QR Code" style="max-width:120px; display:block; margin:5px auto;">
+              {% if event.upi_id %}
+                <p>UPI ID: <b>{{ event.upi_id }}</b></p>
+              {% endif %}
+            {% endif %} -->
+          {% else %}
+            <p><b>Free Event</b></p>
+          {% endif %}
+  
+          <!-- Register button -->
+          <a href="{{ url_for('event_register', id=event._id|string) }}" class="btn btn-register">Register</a>
+        {% else %}
+          <p>Registration: <b style="color:red;">Closed</b></p>
+        {% endif %}
       </div>
     {% endfor %}
   </div>
+  
+  
 
-  <!-- View More Button -->
-  <div class="view-more">
-    <a href="/galleryview">View Full Gallery</a>
+  <h2 class="section-heading">Gallery Highlights</h2>
+
+  <div class="swiper myGallerySwiper">
+    <div class="swiper-wrapper">
+      {% for img in gallery[:10] %}
+        <div class="swiper-slide">
+          <div class="gallery-item">
+            <img src="{{ img.url }}" alt="Gallery Image">
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  
+    <!-- Optional pagination -->
+    <div class="swiper-pagination"></div>
   </div>
+  
+  <div class="view-more">
+    <a href="/galleryview" class="btn-view-all">View Full Gallery</a>
+  </div>
+  
+  
 
+</div>
   <!-- Footer -->
   <footer>
     © 2025 Navayuvak Tarun Ganesh Mandal Wathar. All Rights Reserved. | Designed by Pranav Chandrakant Patil
   </footer>
+  
+  <script>
+    function toggleMenu() {
+      const links = document.getElementById('navLinks');
+      links.classList.toggle('active');
+    }
+  </script>
+  
+<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+<script>
+  var swiper = new Swiper('.myGallerySwiper', {
+    slidesPerView: 1,
+    spaceBetween: 20,
+    loop: true,
+    autoplay: {
+      delay: 2500,       // 2500ms = 2.5 seconds per slide
+      disableOnInteraction: false,
+    },
+    pagination: {
+      el: '.swiper-pagination',
+      clickable: true,
+    },
+    breakpoints: {
+      640: { slidesPerView: 1 },
+      768: { slidesPerView: 2 },
+      1024: { slidesPerView: 3 },
+    }
+  });
+</script>
 
 </body>
 </html>
