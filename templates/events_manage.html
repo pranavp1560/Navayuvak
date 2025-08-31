@@ -1,21 +1,36 @@
+ <!--
 <!DOCTYPE html>
 <html>
 <head>
   <title>Manage Events</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/events.css') }}">
-</head>
-<body>
-  <nav>
-    <div class="logo">🏠 18 HOUSE</div>
-    <ul class="nav-links">
-      <li><a href="/">Home</a></li>
-      <li><a href="/about">About</a></li>
-      <li><a href="/events">Events</a></li>
-      <li><a href="/gallery">Gallery</a></li>
-      <li><a href="/dashboard">Dashboard</a></li>
-      <li><a href="/logout">Logout</a></li>
-    </ul>
-  </nav>
+ <style>
+    nav{
+      padding: 0px 25px;
+    }
+  .logo img {
+    height: 70px;
+    width: auto;
+  }
+    </style>
+  </head>
+  <body>
+    <div class="background-blur">
+      <div class="color-overlay"></div>
+    </div>
+    <nav>
+      <div class="logo">
+        <img src="/static/images/logo.png" alt="Logo" />
+      </div>
+  <div class="hamburger" onclick="toggleMenu()">☰</div>
+  <div class="nav-links" id="navLinks">
+    <a href="/">Home</a>
+    <a href="/vargani">Vargani</a>
+    <a href="/expense">Expense</a>
+    <a href="/galleryview">Gallery</a>
+    <a href="/dashboard">Dashboard</a>
+  </div>
+</nav>
 
   <div class="container">
     <h2>Add New Event</h2>
@@ -26,6 +41,33 @@
       <input type="file" name="image" accept="image/*" required><br><br>
       <button type="submit">Add Event</button>
     </form>
+    <form method="POST" enctype="multipart/form-data">
+      <input name="title" placeholder="Event Title" required><br><br>
+      <textarea name="description" placeholder="Description" required></textarea><br><br>
+      <input type="date" name="event_date" required><br><br>
+      <input type="file" name="image" accept="image/*" required><br><br>
+    
+      
+      <label>
+        <input type="checkbox" name="registration_open" value="true">
+        Enable Registration
+      </label><br><br>
+
+
+      <label>
+        <input type="checkbox" name="is_paid" value="true"> Paid Event?
+      </label><br><br>
+      
+      <div id="payment-fields" style="display:none;">
+        <label>Upload Payment QR Code:</label><br>
+        <input type="file" name="qr" accept="image/*"><br><br>
+        <input type="text" name="upi_id" placeholder="UPI ID"><br><br>
+      </div>
+
+    
+      <button type="submit">Add Event</button>
+    </form>
+    
 
     <h3>All Events</h3>
     <div class="events-grid">
@@ -40,5 +82,106 @@
 
     </div>
   </div>
+  <script>
+    function toggleMenu() {
+      const links = document.getElementById('navLinks');
+      links.classList.toggle('active');
+    }
+  </script>
+  <script>
+    document.querySelector('[name="is_paid"]').addEventListener("change", function() {
+      document.getElementById("payment-fields").style.display = this.checked ? "block" : "none";
+    });
+  </script>
+  
+</body>
+</html>
+-->
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Manage Events</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/events.css') }}">
+  <style>
+    nav{ padding: 0px 25px; }
+    .logo img { height: 70px; width: auto; }
+  </style>
+</head>
+<body>
+  <div class="background-blur"><div class="color-overlay"></div></div>
+  <nav>
+    <div class="logo"><img src="/static/images/logo.png" alt="Logo" /></div>
+    <div class="hamburger" onclick="toggleMenu()">☰</div>
+    <div class="nav-links" id="navLinks">
+      <a href="/">Home</a>
+      <a href="/vargani">Vargani</a>
+      <a href="/expense">Expense</a>
+      <a href="/galleryview">Gallery</a>
+      <a href="/dashboard">Dashboard</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h2>Add New Event</h2>
+    <form method="POST" enctype="multipart/form-data">
+      <input type="text" name="title" placeholder="Event Title" required>
+      <textarea name="description" placeholder="Event Description"></textarea>
+      <input type="date" name="event_date" required>
+      <input type="file" name="image" accept="image/*" required>
+    
+      <!-- Registration toggle -->
+      <label>
+        <input type="checkbox" name="registration_open"> Registration Open
+      </label>
+    
+      <!-- Paid event toggle -->
+      <label>
+        <input type="checkbox" name="is_paid" id="is_paid_checkbox"> Paid Event
+      </label>
+    
+      <!-- Show only if Paid Event -->
+      <div id="payment_section" style="display:none;">
+        <input type="text" name="upi_id" placeholder="UPI ID">
+        <input type="file" name="qr" accept="image/*">
+      </div>
+    
+      <button type="submit">Add Event</button>
+    </form>
+    
+    
+
+    <h3>All Events</h3>
+    <div class="events-grid">
+      {% for event in events %}
+      <div class="event-card">
+        <img src="{{ event.image_url }}" alt="Event Image">
+        <h3>{{ event.title }}</h3>
+        <p>{{ event.description }} <br><small>📅 {{ event.event_date }}</small></p>
+        <p>Registration: {{ 'Open' if event.registration_open else 'Closed' }}</p>
+        <p>{{ 'Paid' if event.is_paid else 'Free' }}</p>
+        <a href="/delete_event/{{ event._id }}">🗑️</a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <script>
+    function toggleMenu() {
+      const links = document.getElementById('navLinks');
+      links.classList.toggle('active');
+    }
+    document.querySelector('[name="is_paid"]').addEventListener("change", function() {
+      document.getElementById("payment-fields").style.display = this.checked ? "block" : "none";
+    });
+  </script>
+  <script>
+    // Show/hide payment section dynamically
+    document.getElementById("is_paid_checkbox").addEventListener("change", function() {
+      document.getElementById("payment_section").style.display = this.checked ? "block" : "none";
+    });
+  </script>
+  
 </body>
 </html>
