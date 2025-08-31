@@ -5,48 +5,91 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Dashboard</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-</head>
-<body>
-
-  <!-- Navbar -->
+  <style>
+    nav{
+      padding: 0px 25px;
+    }
+  .logo img {
+    height: 70px;
+    width: auto;
+  }
+  </style>
+  </head>
+  <body>
+  <div class="background-blur">
+    <div class="color-overlay"></div>
+  </div>
   <nav>
-    <div class="logo">🏠 18 HOUSE Admin</div>
-    <ul class="nav-links">
-      <li><a href="/">Home</a></li>
-      <li><a href="/vargani_list">Vargani List</a></li>
-      <li><a href="/expense">Expenses</a></li>
-      <li><a href="/view_events">Events</a></li>
-      <li><a href="/galleryview">Gallery</a></li>
-      <li><a href="/logout">Logout</a></li>
-    </ul>
-  </nav>
+    <div class="logo">
+      <img src="/static/images/logo.png" alt="Logo" />
+    </div>
+  <div class="hamburger" onclick="toggleMenu()">☰</div>
+  <div class="nav-links" id="navLinks">
+    <a href="/">Home</a>
+    <a href="/vargani">Vargani</a>
+    <a href="/expense">Expense</a>
+    <a href="/galleryview">Gallery</a>
+    <a href="/logout">Logout</a>
+  </div>
+</nav>
 
   <!-- Dashboard Section -->
   <main class="dashboard-container">
-    <h2>📊 Admin Dashboard</h2>
+    <h2>Admin Dashboard</h2>
     <div class="dashboard-grid">
       <a href="/vargani" class="card vargani">
-        <h3>💰 Vargani</h3>
-        <p>Manage Vargani Records</p>
+        <h3>वर्गणी</h3>
+        <p>वर्गणी नोंदी करा</p>
       </a>
       <a href="/vargani_list" class="card vargani">
-        <h3>📋 Vargani List</h3>
-        <p>View All Vargani Entries</p>
+        <h3>वर्गणी यादी</h3>
+        <p>सर्व वर्गणी नोंदी पाहा</p>
       </a>
       <a href="/expense" class="card expense">
-        <h3>📉 Expenses</h3>
-        <p>View & Add Expenses</p>
+        <h3>खर्च</h3>
+        <p>खर्च जोडा व पहा</p>
       </a>
       <a href="/events" class="card event">
-        <h3>📅 Events</h3>
-        <p>Create & Edit Events</p>
+        <h3>कार्यक्रम व्यवस्थापन</h3>
+        <p>कार्यक्रम तयार करा व संपादित करा</p>
       </a>
       <a href="/gallery" class="card gallery">
-        <h3>🖼️ Gallery</h3>
-        <p>Upload & Manage Photos</p>
+        <h3>गॅलरी व्यवस्थापन</h3>
+        <p>फोटो अपलोड करा व व्यवस्थापित करा</p>
+      </a>
+      <a href="/bhandi" class="card gallery">
+        <h3>भांडी</h3>
+        <p>भांडी नोंदी करा</p>
+      </a>
+      <a href="/bhandi_list" class="card gallery">
+        <h3>भांडी व्यवस्थापन</h3>
+        <p>भांडी नोंदी संपादित करा</p>
+      </a>
+      <a href="/paid_rent" class="card gallery">
+        <h3>जमा भांडी यादी</h3>
+        <p>भांडी परत केलेली यादी पाहा</p>
+      </a>
+      <a href="/select_event" class="card gallery">
+        <h3>कार्यक्रम नोंदी</h3>
+        <p>कार्यक्रम नोंदी यादी पाहा</p>
       </a>
     </div>
-  </main>
+    <!-- Aahaval Toggle -->
+<section class="aahaval-toggle" style="text-align:center; margin-top: 30px;">
+  <form method="POST" action="/toggle_aahaval">
+    <label style="font-size: 18px; margin-right: 10px;">🌐 आहवाल वेबसाइटवर दर्शवायचा आहे का?</label>
+    <input type="checkbox" name="visible" onchange="this.form.submit()" {% if show_aahaval %}checked{% endif %}>
+  </form>
+</section>
 
+  </main>
+  
+  <script>
+    function toggleMenu() {
+      const links = document.getElementById('navLinks');
+      links.classList.toggle('active');
+    }
+  </script>
+  
 </body>
 </html>
